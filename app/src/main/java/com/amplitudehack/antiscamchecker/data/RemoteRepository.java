@@ -67,7 +67,7 @@ public class RemoteRepository {
     public String callSagemaker(String extractedText){
         OkHttpClient client = new OkHttpClient();
         HttpUrl.Builder urlBuilder = HttpUrl.parse(Constants.API_GATEWAY_SAGEMAKER_ENDPOINT).newBuilder();
-        urlBuilder.addQueryParameter("extractedText", "extractedText");
+        urlBuilder.addQueryParameter("extractedText", extractedText);
         String url = urlBuilder.build().toString();
 
         Request request = new Request.Builder()
