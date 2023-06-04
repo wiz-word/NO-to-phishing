@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import javax.inject.Inject;
 
 import io.reactivex.rxjava3.core.Single;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -65,19 +66,22 @@ public class RemoteRepository {
 
     public String callSagemaker(String extractedText){
         OkHttpClient client = new OkHttpClient();
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(Constants.API_GATEWAY_SAGEMAKER_ENDPOINT).newBuilder();
+        urlBuilder.addQueryParameter("extractedText", "extractedText");
+        String url = urlBuilder.build().toString();
 
         Request request = new Request.Builder()
-                .url(Constants.API_GATEWAY_SAGEMAKER_ENDPOINT)
+                .url(url)
                 .build();
 
         try {
             Response response = client.newCall(request).execute();
-            String responseBody = response.body().string();
-            return responseBody;
+            return response.body().string();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
+
     }
 
     //https://rapidapi.com/xand3rr/api/fraudfreeze-phishing-check/

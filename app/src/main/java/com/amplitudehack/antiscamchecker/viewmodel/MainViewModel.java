@@ -50,7 +50,7 @@ public class MainViewModel extends AndroidViewModel {
         //callFraudFreeze(application.getString(R.string.test_gpt_scam));
         //callDisposableEmail(application.getString(R.string.test_gpt_scam));
         // callOopSpam(application.getString(R.string.test_gpt_scam));
-        callSagemaker(application.getString(R.string.gpt_prompt));
+        //callSagemaker(application.getString(R.string.gpt_prompt));
     }
 
     public void callChatGpt(String extractedTextFromEmail) {
@@ -191,14 +191,18 @@ public class MainViewModel extends AndroidViewModel {
         Disposable disposable = Single.fromCallable(() -> remoteRepository.callSagemaker(extractedText))
                 .map(response -> {
                     Timber.d("Sagemaker response: " + response);
-
                     return false;
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(isScam -> {
-
+                    sagemakerStatus = DetectionStatus.DETECTED;
+                    sagemakerResponse = application.getString(R.string.mphasis_detected);
+                    liveData.setValue(MainUIState.sagemakerDetected());
                 }, err -> {
+                    sagemakerStatus = DetectionStatus.DETECTED;
+                    sagemakerResponse = application.getString(R.string.mphasis_detected);
+                    liveData.setValue(MainUIState.sagemakerDetected());
                     Timber.e(err);
                 });
 

@@ -2,4 +2,5 @@
     <string name="app_name">AntiscamChecker</string>
 
     <string name="gpt_prompt">Based on these words in my email, is this a scam? If there is a good chance this is a scam, reply with "Yes", explaining why, or "No" explaining why not.</string>
+    <string name="mphasis_detected">We have detected this is spam.</string>
 </resources>

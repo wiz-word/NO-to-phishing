@@ -9,6 +9,7 @@ public class Constants {
     public static String OOP_SPAM_ENDPOINT = "https://oopspam.p.rapidapi.com/v1/spamdetection";
 
 
+
     public static String GPT_API_KEY = "";
     public static String AWS_TEXTRACT_ACCESS_KEY = "";
     public static String AWS_TEXTRACT_SECRET_KEY = "";

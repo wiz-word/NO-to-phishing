@@ -185,7 +185,7 @@
                 android:paddingStart="32dp"
                 android:paddingTop="16dp"
                 android:paddingBottom="16dp"
-                android:text="Sagemaker model"
+                android:text="Mphasis DeepInsights\nDocument Classifier"
                 android:textColor="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
