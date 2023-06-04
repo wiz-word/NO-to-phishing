@@ -2,33 +2,4 @@
     <string name="app_name">AntiscamChecker</string>
 
     <string name="gpt_prompt">Based on these words in my email, is this a scam? If there is a good chance this is a scam, reply with "Yes", explaining why, or "No" explaining why not.</string>
-    <string name="test_gpt_scam">
-1:48
-[Request Updated] -Your wallet is
-about to be suspended./
-Metamask.io
-to Me
-May 20, 7:47 AM
-TOTAL
-TOOLS
-METAMASK
-Your wallet is about to be suspended
-Apply for KYC Verification
-Dear User,
-We are writing to inform you that in order to continue using our wallet service, it
-is
-important to obtain KYC (Know Your Customer) verification . KYC verification helps us to
-ensure that we are providing our services to legitimate customers.
-By completing KYC verification , you will be able to securely store, withdraw , and
-transfer funds without any interruptions. It also helps us
-to protect you against financial fraud and other security threats.
-We urge you to complete KYC verification as soon as possible to avoid suspension of
-your wallet
-https://verification.metamask-io/KYC?id=000#488282082920
-Thank you for understanding. Sincerely
-Delete
-Archive
-Move
-Forward
-More</string>
 </resources>

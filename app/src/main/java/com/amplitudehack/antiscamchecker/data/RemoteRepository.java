@@ -63,13 +63,14 @@ public class RemoteRepository {
     }
 
     //https://rapidapi.com/xand3rr/api/fraudfreeze-phishing-check/
-    public Response callFraudFreeze() throws IOException {
+    //"google.com"
+    public Response callFraudFreeze(String extractedText) throws IOException {
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
-                .url("https://fraudfreeze-phishing-check.p.rapidapi.com/")
+                .url(Constants.FRAUD_FREEZE_ENDPOINT)
                 .get()
-                .addHeader("url", "google.com")
+                .addHeader("url", extractedText)
                 .addHeader("X-RapidAPI-Key", Constants.RAPID_API_KEY)
                 .addHeader("X-RapidAPI-Host", "fraudfreeze-phishing-check.p.rapidapi.com")
                 .build();
@@ -78,11 +79,12 @@ public class RemoteRepository {
     }
 
     //https://rapidapi.com/tomwimmenhove/api/sentimental2/
-    public Response callDisposableEmail() throws IOException {
+    //badactor%40spam4.me
+    public Response callDisposableEmail(String extractedText) throws IOException {
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
-                .url("https://disposable-email-validation.p.rapidapi.com/?validate=badactor%40spam4.me")
+                .url(Constants.DISPOSABLE_EMAIL_ENDPOINT + extractedText)
                 .get()
                 .addHeader("X-RapidAPI-Key", Constants.RAPID_API_KEY)
                 .addHeader("X-RapidAPI-Host", "disposable-email-validation.p.rapidapi.com")
@@ -91,13 +93,13 @@ public class RemoteRepository {
     }
 
     //https://rapidapi.com/oopspam/api/oopspam-spam-filter
-    public Response callOopScam() throws IOException {
+    public Response callOopScam(String extractedText) throws IOException {
         OkHttpClient client = new OkHttpClient();
 
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType, "{\n    \"checkForLength\": true,\n    \"content\": \"Dear Agent, We are a manufacturing company which specializes in supplying Aluminum Rod with Zinc Alloy Rod to customers worldwide, based in Japan, Asia. We have been unable to follow up payments effectively for transactions with debtor customers in your country due to our distant locations, thus our reason for requesting for your services representation.\",\n    \"senderIP\": \"185.234.219.246\",\n    \"email\": \"name@example.com\"\n}");
         Request request = new Request.Builder()
-                .url("https://oopspam.p.rapidapi.com/v1/spamdetection")
+                .url(Constants.OOP_SPAM_ENDPOINT)
                 .post(body)
                 .addHeader("content-type", "application/json")
                 .addHeader("X-RapidAPI-Key", Constants.RAPID_API_KEY)

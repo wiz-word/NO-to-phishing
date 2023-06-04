@@ -14,7 +14,4 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="alertDialogTheme" parent="Theme.MaterialComponents.Dialog">
-        <item name="android:background">@color/selected_radio_btn_color</item>
-    </style>
 </resources>

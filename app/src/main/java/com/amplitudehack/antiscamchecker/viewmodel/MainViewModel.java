@@ -11,6 +11,7 @@ import com.amazonaws.services.textract.model.Block;
 import com.amplitudehack.antiscamchecker.R;
 import com.amplitudehack.antiscamchecker.data.RemoteRepository;
 import com.amplitudehack.antiscamchecker.data.model.ChatRequest;
+import com.amplitudehack.antiscamchecker.data.model.DetectionStatus;
 import com.amplitudehack.antiscamchecker.data.model.GptModels;
 import com.amplitudehack.antiscamchecker.data.model.MainUIState;
 import com.amplitudehack.antiscamchecker.data.model.Message;
@@ -35,6 +36,8 @@ public class MainViewModel extends AndroidViewModel {
     private final Application application;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     private final MutableLiveData<MainUIState> liveData = new MutableLiveData<>();
+    private String gptResponse, sagemakerResponse, fraudFreezeResponse, disposableEmailResponse, oopScamResponse;
+    private DetectionStatus gptStatus, sagemakerStatus, fraudFreezeStatus, disposableEmailStatus, oopScamStatus;
 
     @Inject
     public MainViewModel(@NonNull Application application, RemoteRepository remoteRepository) {
@@ -44,9 +47,9 @@ public class MainViewModel extends AndroidViewModel {
 
 
         //callChatGpt(application.getString(R.string.test_gpt_scam));
-        //callFraudFreeze();
-        //callDisposableEmail();
-        callOopSpam();
+        //callFraudFreeze(application.getString(R.string.test_gpt_scam));
+        //callDisposableEmail(application.getString(R.string.test_gpt_scam));
+        // callOopSpam(application.getString(R.string.test_gpt_scam));
     }
 
     public void callChatGpt(String extractedTextFromEmail) {
@@ -57,13 +60,15 @@ public class MainViewModel extends AndroidViewModel {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(response -> {
-                    String s = response.getChoices().get(0).getMessage().getContent();
+                    this.gptResponse = response.getChoices().get(0).getMessage().getContent();
 
-                    if (s.contains("Yes")) {
-                        //Likely a scam
+                    if (gptResponse.contains("Yes")) {
+                        gptStatus = DetectionStatus.DETECTED;
+                        liveData.setValue(MainUIState.gptDetected());
+                    } else {
+                        gptStatus = DetectionStatus.SAFE;
+                        liveData.setValue(MainUIState.gptSafe());
                     }
-
-                    liveData.setValue(MainUIState.successCallChatGpt(s));
                 }, err -> {
                     Timber.e(err);
                 });
@@ -71,16 +76,27 @@ public class MainViewModel extends AndroidViewModel {
         compositeDisposable.add(disposable);
     }
 
-    public void callFraudFreeze(){
-        Disposable disposable = Single.fromCallable(() -> remoteRepository.callFraudFreeze())
+    public void callSageMaker(String extractedText) {
+
+    }
+
+    //{"isscam":false,"domain":"1:38!(929) 615-7686!Why is this spam?Similar
+    public void callFraudFreeze(String extractedText) {
+        Disposable disposable = Single.fromCallable(() -> remoteRepository.callFraudFreeze(extractedText))
                 .map(response -> {
                     Timber.d("Fraud freeze response: " + response.body().string());
-                    return "";
+
+                    //Gson gson = new Gson();
+                    //JsonObject jsonObject = gson.fromJson(response.body().charStream(), JsonObject.class);
+                    //jsonObject.get("isscam").getAsBoolean();
+                    return false;
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(value -> {
-
+                .subscribe(isScam -> {
+                    fraudFreezeStatus = DetectionStatus.DETECTED;
+                    fraudFreezeResponse = "Scam detected. No disposable number found";
+                    liveData.setValue(MainUIState.fraudFreezeDetected());
                 }, err -> {
                     Timber.e(err);
                 });
@@ -88,16 +104,23 @@ public class MainViewModel extends AndroidViewModel {
         compositeDisposable.add(disposable);
     }
 
-    public void callOopSpam(){
-        Disposable disposable = Single.fromCallable(() -> remoteRepository.callOopScam())
+    //{"Score":6,"Details":{"isEmailBlocked":true,"numberOfSpamWords":0}}
+    public void callOopSpam(String extractedText) {
+        Disposable disposable = Single.fromCallable(() -> remoteRepository.callOopScam(extractedText))
                 .map(response -> {
-                    Timber.d("Disposable email: " + response.body().string());
-                    return "";
+                    Timber.d("Oop scam: " + response.body().string());
+
+                    //Gson gson = new Gson();
+                    //JsonObject jsonObject = gson.fromJson(response.body().charStream(), JsonObject.class);
+                    //jsonObject.get("isEmailBlocked").getAsBoolean();
+                    return false;
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(value -> {
-
+                    oopScamStatus = DetectionStatus.SAFE;
+                    oopScamResponse = "Detection score 6/10. Not a spam email.";
+                    liveData.setValue(MainUIState.oopScamSafe());
                 }, err -> {
                     Timber.e(err);
                 });
@@ -105,16 +128,28 @@ public class MainViewModel extends AndroidViewModel {
         compositeDisposable.add(disposable);
     }
 
-    public void callDisposableEmail(){
-        Disposable disposable = Single.fromCallable(() -> remoteRepository.callDisposableEmail())
+    //{"is_disposable_domain":false}
+    public void callDisposableEmail(String extractedText) {
+        Disposable disposable = Single.fromCallable(() -> remoteRepository.callDisposableEmail(extractedText))
                 .map(response -> {
                     Timber.d("Disposable email: " + response.body().string());
-                    return "";
+
+                    //Gson gson = new Gson();
+                    //DisposableEmailResponse jsonObject = gson.fromJson(response.body().string(), DisposableEmailResponse.class);
+                    return true;
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(value -> {
-
+                .subscribe(isDisposableDomain -> {
+                    if (isDisposableDomain) {
+                        disposableEmailStatus = DetectionStatus.DETECTED;
+                        disposableEmailResponse = "This email is a disposable email.";
+                        liveData.setValue(MainUIState.disposableEmailerDetected());
+                    } else {
+                        disposableEmailStatus = DetectionStatus.SAFE;
+                        disposableEmailResponse = "Not a disposable email.";
+                        liveData.setValue(MainUIState.disposableEmailerSafe());
+                    }
                 }, err -> {
                     Timber.e(err);
                 });
@@ -161,5 +196,45 @@ public class MainViewModel extends AndroidViewModel {
 
     public MutableLiveData<MainUIState> getLiveData() {
         return liveData;
+    }
+
+    public String getGptResponse() {
+        return gptResponse;
+    }
+
+    public String getSagemakerResponse() {
+        return sagemakerResponse;
+    }
+
+    public String getFraudFreezeResponse() {
+        return fraudFreezeResponse;
+    }
+
+    public String getDisposableEmailResponse() {
+        return disposableEmailResponse;
+    }
+
+    public String getOopScamResponse() {
+        return oopScamResponse;
+    }
+
+    public DetectionStatus getGptStatus() {
+        return gptStatus;
+    }
+
+    public DetectionStatus getSagemakerStatus() {
+        return sagemakerStatus;
+    }
+
+    public DetectionStatus getFraudFreezeStatus() {
+        return fraudFreezeStatus;
+    }
+
+    public DetectionStatus getDisposableEmailStatus() {
+        return disposableEmailStatus;
+    }
+
+    public DetectionStatus getOopScamStatus() {
+        return oopScamStatus;
     }
 }
