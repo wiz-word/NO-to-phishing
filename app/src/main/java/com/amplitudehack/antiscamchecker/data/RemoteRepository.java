@@ -26,6 +26,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import timber.log.Timber;
 
 public class RemoteRepository {
 
@@ -60,6 +61,23 @@ public class RemoteRepository {
                 .withDocument(new Document().withBytes(imageBytes));
 
         return client.detectDocumentText(request);
+    }
+
+    public String callSagemaker(String extractedText){
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(Constants.API_GATEWAY_SAGEMAKER_ENDPOINT)
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            String responseBody = response.body().string();
+            return responseBody;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     //https://rapidapi.com/xand3rr/api/fraudfreeze-phishing-check/

@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                     String extractedText = mainUIState.getExtractedText();
 
                     viewModel.callChatGpt(extractedText);
-                    viewModel.callSageMaker(extractedText);
+                    viewModel.callSagemaker(extractedText);
                     viewModel.callFraudFreeze(extractedText);
                     viewModel.callDisposableEmail(extractedText);
                     viewModel.callOopSpam(extractedText);

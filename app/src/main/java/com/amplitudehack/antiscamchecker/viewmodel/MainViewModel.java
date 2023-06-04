@@ -50,6 +50,7 @@ public class MainViewModel extends AndroidViewModel {
         //callFraudFreeze(application.getString(R.string.test_gpt_scam));
         //callDisposableEmail(application.getString(R.string.test_gpt_scam));
         // callOopSpam(application.getString(R.string.test_gpt_scam));
+        callSagemaker(application.getString(R.string.gpt_prompt));
     }
 
     public void callChatGpt(String extractedTextFromEmail) {
@@ -74,10 +75,6 @@ public class MainViewModel extends AndroidViewModel {
                 });
 
         compositeDisposable.add(disposable);
-    }
-
-    public void callSageMaker(String extractedText) {
-
     }
 
     //{"isscam":false,"domain":"1:38!(929) 615-7686!Why is this spam?Similar
@@ -183,6 +180,24 @@ public class MainViewModel extends AndroidViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(pair -> {
                     liveData.setValue(MainUIState.successCallTextract(pair.first, pair.second));
+                }, err -> {
+                    Timber.e(err);
+                });
+
+        compositeDisposable.add(disposable);
+    }
+
+    public void callSagemaker(String extractedText) {
+        Disposable disposable = Single.fromCallable(() -> remoteRepository.callSagemaker(extractedText))
+                .map(response -> {
+                    Timber.d("Sagemaker response: " + response);
+
+                    return false;
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(isScam -> {
+
                 }, err -> {
                     Timber.e(err);
                 });
